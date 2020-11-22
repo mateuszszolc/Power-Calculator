@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="pl">
+
+<head>
+    <meta charset="utf-8">
+    <title>KALKULATOR MOCY PRĄDU</title>
+    <style>
+        input[type=text] {
+            border: 2px solid black;
+            border-radius: 4px;
+        }
+
+        input[type=submit] {
+            background-color: #c21218;
+            border: none;
+            color: white;
+            padding: 12px 28px;
+            text-decoration: none;
+            margin: 10px 10px;
+            cursor: pointer;
+        }
+
+        #devices {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 40%;
+
+        }
+
+        #devices td,
+        #devices th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #devices tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #devices tr:hover {
+            background-color: #ddd;
+        }
+
+        #devices th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: center;
+            background-color: #fcae1e;
+            color: white;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        #header {
+            font-weight: bold;
+            font-size: 22px;
+        }
+
+        .buttonSection {
+            margin: 10px 10px;
+        }
+
+        .button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 32px;
+            text-align: center;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+
+        .button5:hover {
+            background-color: #555555;
+            color: white;
+        }
+
+        #paragraphElectro, #paragraphSecurity{
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        var name, tension, power, cos;
+
+        function validate(input) {
+            var rgx = /^[0-9]*\.*\-?[0-9]*$/;
+            return input.match(rgx);
+        }
+
+        function addObjectToTable(obj) {
+
+            var row = document.getElementById('devices').insertRow();
+            var cell1 = row.insertCell(0);
+            var cell1Text = document.createTextNode(obj.name);
+            cell1.appendChild(cell1Text);
+            var cell2 = row.insertCell(1);
+            var cell2Text = document.createTextNode(obj.tension);
+            cell2.appendChild(cell2Text);
+            var cell3 = row.insertCell(2);
+            var cell3Text = document.createTextNode(obj.power);
+            cell3.appendChild(cell3Text);
+            var cell4 = row.insertCell(3);
+            var cell4Text = document.createTextNode(obj.cos);
+            cell4.appendChild(cell4Text);
+            var cell5 = row.insertCell(4);
+            var cell5Text = document.createTextNode(obj.electrocity);
+            cell5.appendChild(cell5Text);
+
+            sumElectrocity();
+        }
+
+        function sumElectrocity() {
+            var table = document.getElementById("devices");
+            var sum = 0;
+
+            for(var i = 0; i < table.rows.length; i++){
+                if(i == 0){
+                    continue;
+                }
+                sum = sum +  parseFloat(table.rows[i].cells[4].innerHTML);
+            }
+
+            document.getElementById("paragraphElectro").innerHTML = "Całkowity pobór mocy: " + sum.toString() + " [A]";
+
+            if(sum <= 10){
+                document.getElementById("paragraphSecurity").innerHTML = "Zabezpieczenie: 10 [A]";
+                return;
+            }
+            else if(sum > 10 && sum <= 16){
+                document.getElementById("paragraphSecurity").innerHTML = "Zabezpieczenie: 16 [A]";
+                return;
+            }
+            else if(sum > 16 && sum <= 20){
+                document.getElementById("paragraphSecurity").innerHTML = "Zabezpieczenie: 20 [A]";
+                return;
+            }
+            else if(sum > 20 && sum <= 25){
+                document.getElementById("paragraphSecurity").innerHTML = "Zabezpieczenie: 25 [A]";
+                return;
+            }
+            else if(sum > 25 && sum <= 32){
+                document.getElementById("paragraphSecurity").innerHTML = "Zabezpieczenie: 32 [A]";
+                return;
+            }
+            else if(sum > 32 && sum <= 40){
+                document.getElementById("paragraphSecurity").innerHTML = "Zabezpieczenie: 40 [A]";
+                return;
+            }
+            else if(sum > 40){
+                document.getElementById("paragraphSecurity").innerHTML = "Zabezpieczenie: Nie zdefiniowano zabezpieczenia.";
+                return;
+            }
+        }
+
+        function submitForm() {
+            var object = readDataFromForm();
+
+            if (!validate(object.tension)) {
+                alert('Napięcie musi być liczbą i musi być większe od zera.');
+                return;
+            }
+            if (!validate(object.power)) {
+                alert('Moc musi być liczbą i musi być większa od zera.');
+                return;
+            }
+            if (!validate(object.cos)) {
+                alert('Jako parametr fi należy podać liczbę większą, bądź równą zero oraz mniejszą bądź równą 1.')
+                return;
+            }
+
+            if (validate(object.cos)) {
+                if (object.cos > 1 || object.cos <-1) {
+                    alert('Cos fi musi znajdować się w przedziale [-1, 1]');
+                    return;
+                }
+            }
+
+            if(validate(object.tension)){
+                if(object.tension < 0){
+                    alert('Napięcie musi byc większe od zera.');
+                    return;
+                }
+            }
+
+            if(validate(object.power)){
+                if(object.power < 0){
+                    alert('Moc musi byc większe od zera.');
+                    return;
+                }
+            }
+
+            addObjectToTable(object);
+        }
+
+        function readDataFromForm() {
+            name = document.forms["inputForm"]["nameInput"].value;
+            tension = document.forms["inputForm"]["tensionInput"].value;
+            power = document.forms["inputForm"]["powerInput"].value;
+            cos = document.forms["inputForm"]["cosInput"].value;
+
+            if (!validate(tension) || !validate(power) || !validate(cos)) {
+
+                var formData = {
+                    name: name,
+                    tension: tension,
+                    power: power,
+                    cos: cos
+                }
+
+                return formData;
+            }
+            else {
+
+                //Zamiana kW na W
+                //P = U * I * cosφ
+                // I = P / (U * cosφ)
+                consumption = ((power * 1000) / (tension * cos)).toFixed(2);
+                var formData = {
+                    name: name,
+                    tension: tension,
+                    power: power,
+                    cos: cos,
+                    electrocity: consumption
+                }
+                return formData;
+            }
+        }
+
+        function sortByName(column) {
+            var firstRow, nextRow;
+            var rows = document.getElementById("devices").rows;
+            var changing = true;
+
+            while (changing) {
+                changing = false;
+
+                for (var i = 1; i < rows.length - 1; i++) {
+                    var change = false;
+
+                    firstRow = rows[i].getElementsByTagName("td")[column];
+                    nextRow = rows[i + 1].getElementsByTagName("td")[column];
+
+                    if (firstRow.innerHTML.toLowerCase() > nextRow.innerHTML.toLowerCase()) {
+
+                        change = true;
+                        break;
+                    }
+                }
+                if (change) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    changing = true;
+                }
+            }
+        }
+
+        function sortByValue(column) {
+            var firstRow, nextRow;
+            var rows = document.getElementById("devices").rows;
+            var changing = true;
+
+            while (changing) {
+                changing = false;
+
+                for (var i = 1; i < rows.length - 1; i++) {
+                    var change = false;
+
+                    firstRow = rows[i].getElementsByTagName("td")[column];
+                    nextRow = rows[i + 1].getElementsByTagName("td")[column];
+
+                    if (parseFloat(firstRow.innerHTML) > parseFloat(nextRow.innerHTML)) {
+
+                        change = true;
+                        break;
+                    }
+                }
+                if (change) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    changing = true;
+                }
+            }
+        }
+
+        
+
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <p id="header">KALKULATOR MOCY/PRĄDU</p>
+        <form name="inputForm" onsubmit="event.preventDefault();submitForm();" autocomplete="off">
+            <div>
+                <p>Nazwa</p>
+                <input type="text" name="nameInput" required>
+            </div>
+            <div>
+                <p>Napięcie [V]</p>
+                <input type="text" name="tensionInput" required>
+            </div>
+            <div>
+                <p>Moc czynna [kW]</p>
+                <input type="text" name="powerInput" required>
+            </div>
+            <div>
+                <p>Cos φ [-1, 1]</p>
+                <input type="text" name="cosInput" required>
+            </div>
+            <div>
+                <p></p>
+                <input type="submit" value="Dodaj odbiornik" required>
+            </div>
+        </form>
+        <div class="buttonSection">
+            <button class="button sortButton" onclick="sortByName(0)">Sortuj po nazwie</button>
+            <button class="button sortButton" onclick="sortByValue(1)">Sortuj po wartości napięcia</button>
+        </div>
+        <div>
+            <p id="paragraphElectro">Całkowity pobór mocy: </p>
+        </div>
+        <div>
+            <p id="paragraphSecurity">Zabezpieczenie: </p>
+        </div>
+        <table id="devices">
+            <thead>
+                <tr>
+                    <th>Nazwa</th>
+                    <th>Napięcie [V]</th>
+                    <th>Moc czynna [kW]</th>
+                    <th>Cos φ</th>
+                    <th>Prąd [A]</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+            
+    </div>
+
+</body>
+
+</html>
